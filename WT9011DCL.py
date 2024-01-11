@@ -98,7 +98,7 @@ class BLE_IMU(QMainWindow):
                 logging.info("starting device %d task", device_num)
                 try:
                     async with contextlib.AsyncExitStack() as stack:
-                        # Trying to establish a connection to two devices at the    same time
+                        # Trying to establish a connection to two devices at the same time
                         # can cause errors, so use a lock to avoid this.
                         async with lock:
                             logging.info("scanning for device %d", device_num)
@@ -205,7 +205,7 @@ class BLE_IMU(QMainWindow):
             await asyncio.gather(*(connect_to_device(lock, i) for i in range(2)))
 
         connect_task = connect2()
-        asyncio.ensure_future(connect_task)
+        self.keep_connect = asyncio.ensure_future(connect_task)
 
     def update_plot(self):
         for i in range(6):
@@ -215,6 +215,7 @@ class BLE_IMU(QMainWindow):
         logging.info("close")
         self.status.showMessage("停止接收数据", 2000)
         self.toDisconnect = True
+        self.keep_connect.cancel()
 
 
 if __name__ == "__main__":
